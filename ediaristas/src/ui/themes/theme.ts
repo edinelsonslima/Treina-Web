@@ -1,4 +1,4 @@
-import { createTheme } from "@mui/material/styles";
+import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
     palette: {
@@ -33,6 +33,7 @@ const theme = createTheme({
             400: '#9B9B9B',
         },
     },
+
     typography: {
         fontFamily: 'Poppins',
     },
