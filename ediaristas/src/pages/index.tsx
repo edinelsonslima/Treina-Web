@@ -3,7 +3,7 @@ import SafeEnvironment from 'ui/components/feedback/SafeEnvironment/SafeEnvironm
 import PageTitle from 'ui/components/data-display/PageTitle/PageTitle';
 import UserInformation from 'ui/components/data-display/UserInformation/UserInformation';
 import TextFieldMask from 'ui/components/inputs/TextFieldMask/TextFieldMasl';
-import { Button, Typography, Container } from '@mui/material';
+import { Button, Typography, Container, CircularProgress } from '@mui/material';
 import {
     FormElementContainer,
     ProfissionaisContainer,
@@ -12,7 +12,18 @@ import {
 import useIndex from 'data/hooks/pages/useIndex.page';
 
 const Home: NextPage = () => {
-    const { cep, setCep } = useIndex();
+    const {
+        cep,
+        setCep,
+        cepValido,
+        buscarProfissionais,
+        erro,
+        diaristas,
+        buscaFeita,
+        carregando,
+        diaristasRestantes,
+    } = useIndex();
+
     return (
         <div>
             <SafeEnvironment />
@@ -25,7 +36,7 @@ const Home: NextPage = () => {
             <Container>
                 <FormElementContainer>
                     <TextFieldMask
-                        mask={'99.999-99'}
+                        mask={'99.999-999'}
                         label={'Digite ser CEP'}
                         variant={'outlined'}
                         fullWidth
@@ -33,49 +44,58 @@ const Home: NextPage = () => {
                         onChange={(e) => setCep(e.target.value)}
                     />
 
-                    <Typography color={'error'}>CEP invalido</Typography>
+                    {erro && <Typography color={'error'}>{erro}</Typography>}
                     <Button
                         variant={'contained'}
                         color={'secondary'}
                         sx={{ width: '220px' }}
+                        disabled={!cepValido || carregando}
+                        onClick={() => buscarProfissionais(cep)}
                     >
-                        Buscar
+                        {carregando ? <CircularProgress size={20} /> : 'Buscar'}
                     </Button>
                 </FormElementContainer>
-                <ProfissionaisPaper>
-                    <ProfissionaisContainer>
-                        <UserInformation
-                            name={'Edinelson'}
-                            picture={'https://github.com/edinelsonslima.png'}
-                            rating={3}
-                            description={'Teresina'}
-                        />
-                        <UserInformation
-                            name={'Edinelson'}
-                            picture={'https://github.com/edinelsonslima.png'}
-                            rating={3}
-                            description={'Teresina'}
-                        />
-                        <UserInformation
-                            name={'Edinelson'}
-                            picture={'https://github.com/edinelsonslima.png'}
-                            rating={3}
-                            description={'Teresina'}
-                        />
-                        <UserInformation
-                            name={'Edinelson'}
-                            picture={'https://github.com/edinelsonslima.png'}
-                            rating={3}
-                            description={'Teresina'}
-                        />
-                        <UserInformation
-                            name={'Edinelson'}
-                            picture={'https://github.com/edinelsonslima.png'}
-                            rating={3}
-                            description={'Teresina'}
-                        />
-                    </ProfissionaisContainer>
-                </ProfissionaisPaper>
+
+                {buscaFeita &&
+                    (diaristas.length > 0 ? (
+                        <ProfissionaisPaper>
+                            <ProfissionaisContainer>
+                                {diaristas.map((item, index) => {
+                                   return <UserInformation
+                                        name={item.nome_completo}
+                                        picture={item.foto_usuario}
+                                        rating={item.reputacao}
+                                        description={item.cidade}
+                                        key={index}
+                                    />;
+                                })}
+                            </ProfissionaisContainer>
+                            <Container sx={{ textAlign: 'center' }}>
+                                {diaristasRestantes > 0 && (
+                                    <Typography sx={{ mt: 5 }}>
+                                        ...e mais {diaristasRestantes}
+                                        {diaristasRestantes > 1
+                                            ? ' profissionais atendem'
+                                            : ' profissional atende'}{' '}
+                                        ao seu endereço
+                                    </Typography>
+                                )}
+
+                                <Button
+                                    variant={'contained'}
+                                    color={'secondary'}
+                                    sx={{ mt: 5 }}
+                                >
+                                    Contratar um profissional
+                                </Button>
+                            </Container>
+                        </ProfissionaisPaper>
+                    ) : (
+                        <Typography align={'center'} color={'textPrimary'}>
+                            Ainda não temos nenhuma diarista disponível na sua
+                            região
+                        </Typography>
+                    ))}
             </Container>
         </div>
     );
